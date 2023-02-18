@@ -3,10 +3,12 @@
 	"version": "1.0.0",
 	"description": "Write efficient code for nodejs and browser without weird tricks",
 	"main": "lib/index.js",
+	"types": "lib/index.d.ts",
 	"bin": "lib/cli.js",
 	"scripts": {
 		"build": "tsc",
-		"test": "cd test && npm test"
+		"test": "cd test && npm test",
+		"prepublish": "npm run build && npm test"
 	},
 	"keywords": [
 		"typescript",

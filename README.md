@@ -1,6 +1,7 @@
 # Macro Compiler
-Separate explicitly the portions of code that will be executed only
-on a specific target.
+
+Separate explicitly portions of code that will
+be executed only on a specific target.
 
 ## Example
 
@@ -54,9 +55,9 @@ import { Buffer } from "./my-custom-browser-buffer";
 
 ## How it works
 
-The code of the project will contain special sections.
+The code will be divided into various sections
 The sections are defined explicitly with macros.
-The purpose is to separate the portion of codes that will
+The purpose is to separate portions of code that will
 be executed only on a specific target.
 
 ### Macros
@@ -78,19 +79,26 @@ Defined in two ways:
  - `//!start` & `//!end`
  - `/*!` & `*/`
 
-The first option is the recomended because it will have syntax highlighting.
-However sometimes the second option is preferable. If we define or import
-a value in multiple targets, the IDE will signal an `Duplicate identifier` error.
+The first option is recommended because it will have syntax highlighting.
+However, sometimes the second option is preferable. If we define or import
+a value in multiple targets, the IDE will signal a `Duplicate identifier` error.
 
-It is recomended to use the `/*! ... */` macro only with imports to maximize
-highlighting. The target-specific variables/methods can be defined to a custom
+The `/*! ... */` macro should only be used to prevent duplicate imports.
+The target-specific variables/methods can be defined on a custom
 file (see [Select a File](#select-a-file)).
 
 ```ts
+//! if target == NodeJs
+import { deflate, inflate } from "zlib";
+
+/*! if target == Browser
+import { deflate, inflate } from "./browser-zlib";
+*/
+
 //!start if target == NodeJs
-console.log("Node");
+console.log(inflate(deflate("Node")));
 ...
-console.log("An only Node");
+console.log(inflate(deflate("And only Node")));
 //!end
 ```
 
@@ -102,5 +110,10 @@ It will remove or copy the file depending on the target.
 
 ```ts
 //!file if target == Browser
+
+console.log("A file for the browser");
+
 ...
+
+export const Buffer = MyWebBuffer;
 ```
