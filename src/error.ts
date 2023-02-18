@@ -34,8 +34,10 @@ export function compilationError(file: FileContent, message: string, position: n
 	column = style.yellow + column + style.reset;
 	message = style.red + "error " + style.reset + message;
 	console.error(`${filePath}:${line}:${column} - ${message}`);
+	process.exitCode = 1;
 }
 
 export function logError(message: string) {
 	console.error(`${style.red}[ERROR]${style.reset} ${message}`);
+	process.exitCode = 1;
 }
