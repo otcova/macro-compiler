@@ -1,5 +1,4 @@
 import fs from "fs/promises";
-import { compileMacros } from "../lib/index.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -25,16 +24,6 @@ async function testFileDelete(file, targetName) {
 }
 
 async function main() {
-	await Promise.all([
-		fs.rm(localPath("nodejs", "src"), { recursive: true, force: true }),
-		fs.rm(localPath("browser", "src"), { recursive: true, force: true }),
-	]);
-
-	await compileMacros({
-		baseDir: __dirname,
-		srcDir: "src",
-	});
-
 	await Promise.all([
 		testCompilation("./NodeJs/src/", "NodeJs"),
 		testCompilation("./Browser/src/", "Browser"),

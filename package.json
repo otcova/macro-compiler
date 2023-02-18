@@ -3,9 +3,10 @@
 	"version": "1.0.0",
 	"description": "Write efficient code for nodejs and browser without weird tricks",
 	"main": "lib/index.js",
+	"bin": "lib/cli.js",
 	"scripts": {
 		"build": "tsc",
-		"test": "node test/index.js"
+		"test": "cd test && npm test"
 	},
 	"keywords": [
 		"typescript",
@@ -19,6 +20,14 @@
 		"name": "Otger Comas",
 		"email": "otgercomas@gmail.com"
 	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/otcova/macro-compiler.git"
+	},
+	"bugs": {
+		"url": "https://github.com/otcova/macro-compiler/issues"
+	},
+	"homepage": "https://github.com/otcova/macro-compiler#readme",
 	"license": "ISC",
 	"dependencies": {
 		"typescript": "^4.9.5"

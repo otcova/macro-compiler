@@ -1,44 +1,68 @@
 import path from "path";
-import { compilationError, FileContent } from "./error.js";
-import { getFiles, writeFile, readFile } from "./file-system.js";
+import { compilationError, FileContent, logError } from "./error.js";
+import { getFiles, writeFile, readFile, isDirectory, isFile, deleteAll } from "./file-system.js";
 
 interface Target {
 	name: string,
-	dstDir: string,
+	dstDirectory: string,
 	macroHeader: string,
 }
 
 export interface Options {
-	baseDir?: string,
+	rootDir?: string,
 	srcDir: string,
-	targets?: { name: string, dstDir?: string }[],
+	clean: boolean,
+	targets?: { name: string, dstDirectory?: string }[],
 };
 
-const defaultTargets = [
-	{ name: "NodeJs" },
-	{ name: "Browser" },
-];
-
 export async function compileMacros(opts: Options) {
-	const baseDir = opts.baseDir ?? "";
-	const srcDir = path.join(baseDir, opts.srcDir);
+	const rootDir = opts.rootDir ?? ".";
+	
+	if (!await isDirectory(rootDir)) {
+		logError(`Invalid root directory '${rootDir}'`);
+		return;
+	}
+	
+	const srcDir = path.join(rootDir, opts.srcDir);
 
-	const targets: Target[] = (opts.targets ?? defaultTargets).map(target => ({
-		dstDir: path.join(baseDir, target.name, "src"),
+	if (await isDirectory(srcDir)) {
+		opts.targets ??= [
+			{ name: "NodeJs" },
+			{ name: "Browser" },
+		]
+	} else if (await isFile(srcDir)) {
+		const fileName = path.basename(srcDir);
+		opts.targets ??= [
+			{ name: "NodeJs", dstDirectory: "nodejs-" + fileName },
+			{ name: "Browser", dstDirectory: "browser-" + fileName },
+		]
+	} else {
+		logError(`Invalid source path '${srcDir}'`);
+		return;
+	}
+
+	const targets: Target[] = opts.targets.map(target => ({
+		dstDirectory: path.join(rootDir, target.name, "src"),
 		...target,
 		macroHeader: "if target == " + target.name,
 	}));
+	
+	if (opts.clean) {
+		for (const target of targets) {
+			deleteAll(target.dstDirectory);
+		}
+	}
 
 	const macroHeaders = targets.map(target => target.macroHeader);
 
-	await getFiles(srcDir, async relativeSrcPath => {
+	await getFiles(srcDir, async (relativeSrcPath) => {
 		const srcPath = path.join(srcDir, relativeSrcPath);
 		const body = await readFile(srcPath);
 
 		await Promise.all(targets.map(async target => {
 			const compiledSrc = compileFile({ path: srcPath, body }, target, macroHeaders);
 			if (compiledSrc) {
-				const dstPath = path.join(target.dstDir, relativeSrcPath);
+				let dstPath = path.join(target.dstDirectory, relativeSrcPath);
 				await writeFile(dstPath, compiledSrc);
 			}
 		}));
@@ -192,7 +216,7 @@ function findMacros(file: FileContent) {
 						}];
 					}
 
-					macros.push({ 
+					macros.push({
 						replace: [],
 						header,
 						body: [start, i],

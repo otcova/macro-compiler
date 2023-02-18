@@ -1,0 +1,7 @@
+lockfileVersion: 5.3
+
+specifiers:
+  macro-compiler: link:..
+
+dependencies:
+  macro-compiler: link:..

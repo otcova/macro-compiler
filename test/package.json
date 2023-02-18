@@ -1,0 +1,20 @@
+{
+	"name": "test",
+	"version": "1.0.0",
+	"description": "",
+	"main": "test.js",
+	"type": "module",
+	"scripts": {
+		"test": "npm run build && node test.js",
+		"build": "macro-compiler src-with-macros"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/otcova/macro-compiler.git"
+	},
+	"license": "ISC",
+	"homepage": "https://github.com/otcova/macro-compiler#readme",
+	"dependencies": {
+		"macro-compiler": "link:.."
+	}
+}
