@@ -1,0 +1,30 @@
+{
+	"name": "macro-compiler",
+	"version": "1.0.0",
+	"description": "Write efficient code for nodejs and browser without weird tricks",
+	"main": "lib/index.js",
+	"scripts": {
+		"build": "tsc",
+		"test": "node test/index.js"
+	},
+	"keywords": [
+		"typescript",
+		"compiler",
+		"macro",
+		"nodejs",
+		"browser",
+		"compatible"
+	],
+	"author": {
+		"name": "Otger Comas",
+		"email": "otgercomas@gmail.com"
+	},
+	"license": "ISC",
+	"dependencies": {
+		"typescript": "^4.9.5"
+	},
+	"devDependencies": {
+		"@types/node": "^18.14.0"
+	},
+	"type": "module"
+}
