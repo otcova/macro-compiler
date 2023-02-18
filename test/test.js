@@ -5,34 +5,36 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const localPath = (...dir) => path.join(__dirname, ...dir);
 
+const style = {
+	reset: "\x1b[0m",
+	red: "\x1b[31m",
+	green: "\x1b[32m",
+};
+
 async function testCompilation(folder, targetName) {
 	try {
 		let lib = await import(folder + "index.js");
 		if (lib.default() != targetName) throw new Error();
 
-		console.log(`[SUCCESS compile ${targetName}]`);
+		console.log(`${style.green}[SUCCESS]${style.reset} Compile ${targetName}`);
 	} catch (error) {
-		console.error(`[ERROR compile ${targetName}] ${error}`);
+		const msg = `${style.red}[ERROR]${style.reset} Compile ${targetName}]`;
+		if (error) console.error(msg, "-", error);
+		else console.log(msg);
 	}
 }
 
 async function testFileDelete(file, targetName) {
-	const fileExists = async path => !!(await fs.stat(path).catch(e => false));
+	const pathExists = async path => !!(await fs.stat(path).catch(e => false));
 
-	if (await fileExists(file)) console.log(`[ERROR remove non ${targetName} files]`);
-	else console.error(`[SUCCESS remove non ${targetName} files]`);
+	const msg = `${style.reset} Remove non ${targetName} files`;
+	if (await pathExists(file)) console.log(style.red + "[ERROR]" + msg);
+	else console.error(style.green + "[SUCCESS]" + msg);
 }
 
-async function main() {
-	await Promise.all([
-		testCompilation("./NodeJs/src/", "NodeJs"),
-		testCompilation("./Browser/src/", "Browser"),
-	]);
-
-	await Promise.all([
-		testFileDelete(localPath("./NodeJs/src/browser-specific.js"), "NodeJs"),
-		testFileDelete(localPath("./Browser/src/nodejs-specific.js"), "Browser"),
-	]);
-}
-
-main();
+Promise.all([
+	testCompilation("./NodeJs/src/", "NodeJs"),
+	testCompilation("./Browser/src/", "Browser"),
+	testFileDelete(localPath("./NodeJs/src/browser-specific.js"), "NodeJs"),
+	testFileDelete(localPath("./Browser/src/nodejs-specific.js"), "Browser"),
+]);

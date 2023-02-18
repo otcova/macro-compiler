@@ -17,12 +17,12 @@ export interface Options {
 
 export async function compileMacros(opts: Options) {
 	const rootDir = opts.rootDir ?? ".";
-	
+
 	if (!await isDirectory(rootDir)) {
 		logError(`Invalid root directory '${rootDir}'`);
 		return;
 	}
-	
+
 	const srcDir = path.join(rootDir, opts.srcDir);
 
 	if (await isDirectory(srcDir)) {
@@ -46,11 +46,9 @@ export async function compileMacros(opts: Options) {
 		...target,
 		macroHeader: "if target == " + target.name,
 	}));
-	
+
 	if (opts.clean) {
-		for (const target of targets) {
-			deleteAll(target.dstDirectory);
-		}
+		await Promise.all(targets.map(target => deleteAll(target.dstDirectory)));
 	}
 
 	const macroHeaders = targets.map(target => target.macroHeader);
@@ -113,7 +111,7 @@ interface FoundMacro {
 	body: SliceIndex,
 }
 
-function findMacros(file: FileContent) {
+function findMacros(file: FileContent): FoundMacro[] {
 	let src = file.body;
 	const macros: FoundMacro[] = [];
 
@@ -135,6 +133,21 @@ function findMacros(file: FileContent) {
 		lineStart = i;
 		if (src[i - 1] == "\r") return i - 2;
 		return i - 1;
+	}
+	
+	// Skip initial whitespace
+	while (" \t\s\v\r\n".includes(src[i])) {
+		if (src[i] == "\n") lineStart = i + 1;
+		++i;
+	}
+	
+	if (src.slice(i, i + 7) == "//!file") {
+		const header: SliceIndex = [i + 7, skipLine()];
+		return [{
+			replace: [],
+			header,
+			body: [0, src.length],
+		}];
 	}
 
 	while (i < src.length) {
@@ -207,14 +220,6 @@ function findMacros(file: FileContent) {
 					skipLine();
 
 					const header: SliceIndex = [start + 3, headerEnd];
-
-					if (start == 0 && !src.slice(headerEnd, i).trim()) {
-						return [{
-							replace: [],
-							header,
-							body: [start, src.length],
-						}];
-					}
 
 					macros.push({
 						replace: [],
