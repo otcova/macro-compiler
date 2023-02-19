@@ -117,3 +117,15 @@ console.log("A file for the browser");
 
 export const Buffer = MyWebBuffer;
 ```
+
+## CLI
+
+- Usage:  `macro-compiler [source directory/file] [optional-flags]`
+
+- Example:  `macro-compiler src-folder -t NodeJs dist/nodejs/src Browser dist/browser/src`
+
+| Flag             | Description                                      | Default                                 |
+| ---------------- | ------------------------------------------------ | --------------------------------------- |
+| `--target` `-t`  | Set the compilation targets                      | `NodeJs NodeJs/src Browser Browser/src` |
+| `--rootDir` `-r` | Specify the root folder                          | current-directory                       |
+| `--clen` `-c`    | Delete the target directories before compilation | `true`                                  |  |
