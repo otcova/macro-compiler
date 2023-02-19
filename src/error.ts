@@ -10,8 +10,8 @@ export const style = {
 };
 
 export interface FileContent {
-	path: string,
-	body: string,
+	path: string;
+	body: string;
 }
 
 

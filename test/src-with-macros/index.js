@@ -1,9 +1,11 @@
 //! if target == Browser
 import { myFunction } from "./browser-specific.js";
 
-/*! if target == NodeJs
-import { myFunction } from "./nodejs-specific.js";
-*/
+//! if target == NodeJs
+// import { myFunction } from "./nodejs-specific.js";
+
+//! if target == NodeJs
+//
 
 export default function() {
 	const compatibleModule = myFunction();
@@ -20,10 +22,10 @@ export default function() {
 	}
 	//!end
 
-	//!start if target == NodeJs
+	/*! if target == NodeJs
 	if (compatibleModule.includes("NodeJs")) {
 		const irrevelantText = 'greger //!end fwg';
 		return "NodeJs";
 	}
-	//!end
+	*/
 }

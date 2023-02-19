@@ -3,16 +3,16 @@ import { compilationError, FileContent, logError } from "./error.js";
 import { getFiles, writeFile, readFile, isDirectory, isFile, deleteAll } from "./file-system.js";
 
 interface Target {
-	name: string,
-	dstDirectory: string,
-	macroHeader: string,
+	name: string;
+	dstDirectory: string;
+	macroHeader: string;
 }
 
 export interface Options {
-	rootDir?: string,
-	srcDir: string,
-	clean: boolean,
-	targets?: { name: string, dstDirectory?: string }[],
+	rootDir?: string;
+	srcDir: string;
+	clean: boolean;
+	targets?: { name: string, dstDirectory?: string }[];
 };
 
 export async function compileMacros(opts: Options) {
@@ -102,13 +102,15 @@ function compileFile(file: FileContent, target: Target, macrosHeader: string[]) 
  */
 type SliceIndex = [number, number];
 
+interface ReplaceSlice {
+	slice: SliceIndex;
+	value: string;
+}
+
 interface FoundMacro {
-	replace: {
-		slice: SliceIndex,
-		value: string,
-	}[],
-	header: SliceIndex,
-	body: SliceIndex,
+	replace: ReplaceSlice[];
+	header: SliceIndex;
+	body: SliceIndex;
 }
 
 function findMacros(file: FileContent): FoundMacro[] {
@@ -134,13 +136,13 @@ function findMacros(file: FileContent): FoundMacro[] {
 		if (src[i - 1] == "\r") return i - 2;
 		return i - 1;
 	}
-	
+
 	// Skip initial whitespace
 	while (" \t\s\v\r\n".includes(src[i])) {
 		if (src[i] == "\n") lineStart = i + 1;
 		++i;
 	}
-	
+
 	if (src.slice(i, i + 7) == "//!file") {
 		const header: SliceIndex = [i + 7, skipLine()];
 		return [{
@@ -217,12 +219,26 @@ function findMacros(file: FileContent): FoundMacro[] {
 				} else if (src.slice(i, i + 3) == "//!") {
 					const start = i;
 					const headerEnd = skipLine();
+					let replace: ReplaceSlice[] = [];
+
+					// Detect single line commented macro (`//! if ...` & `// code`)
+					const startOfCode = i;
+					while (" \t".includes(src[i])) ++i;
+					if (src.slice(i, i + 2) == "//") {
+						i += 2;
+						while (" \t".includes(src[i])) ++i;
+						replace = [{
+							slice: [startOfCode, i],
+							value: "",
+						}];
+					}
+
 					skipLine();
 
 					const header: SliceIndex = [start + 3, headerEnd];
 
 					macros.push({
-						replace: [],
+						replace,
 						header,
 						body: [start, i],
 					});

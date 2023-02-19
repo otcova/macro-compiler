@@ -5,27 +5,27 @@ be executed only on a specific target.
 
 ## Example
 
-- File: `src/index.ts`
+- File: `src-folder/index.ts`
 ```ts
 //! if target == Browser
-import { Buffer } from "./my-custom-browser-buffer";
+// import { Buffer } from "./my-custom-browser-buffer";
 
-/*! if target == NodeJs
+//!start if target == NodeJs
 import { Buffer } from "node:buffer";
 import { RTCPeerConnection } from "wrtc";
-*/
+//!end
 
 ...
 ```
 
-- File: `src/my-custom-browser-buffer.ts`
+- File: `src-folder/my-custom-browser-buffer.ts`
 ```ts
 //!file if target == Browser
 
 ...
 ```
 
-Once we run the compiler (`npx macro-compiler src`).
+Once we run the compiler (`npx macro-compiler src-folder`).
 The nodejs and browser code will be generated.
 
 - Generated File: `NodeJs/src/index.ts`
@@ -67,39 +67,38 @@ or conserved depending on the target.
 The macros can select lines, blocks or files.
 
 #### Select a line
-Defined by `//!`. It will select only the next line
+Defined by `//!`, it will only select the next line.
+
 ```ts
 //! if target == NodeJs
 console.log("Code that will run on NodeJs");
-console.log("Code that will run on every where");
+console.log("Code that will run every where");
 ```
 
+If we concatenate multiple blocks, the IDE can think that we are makeing
+a `Duplicate identifier` error.
+To prevent that you can comment the selected line.
+The macro-compiler will uncomment the code if the target is selected.
+
 ### Select a block
-Defined in two ways:
- - `//!start` & `//!end`
- - `/*!` & `*/`
 
-The first option is recommended because it will have syntax highlighting.
-However, sometimes the second option is preferable. If we define or import
-a value in multiple targets, the IDE will signal a `Duplicate identifier` error.
+Selcets the code that is in between (`//!start` or `/*!`) and (`//!end` or `*/`).
 
-The `/*! ... */` macro should only be used to prevent duplicate imports.
-The target-specific variables/methods can be defined on a custom
-file (see [Select a File](#select-a-file)).
+
+The `/*!` `*/` macro should only be used on imports because it
+is going to disable the syntax highlighting.
+It is recommended to write the code on a different file (see [Select a File](#select-a-file)).
 
 ```ts
-//! if target == NodeJs
-import { deflate, inflate } from "zlib";
+//!start if target == NodeJs
+import { deflate, inflate } from "node:zlib";
+import { Buffer } from "node:buffer";
+//!end
 
 /*! if target == Browser
 import { deflate, inflate } from "./browser-zlib";
+import { Buffer } from "./browser-buffer";
 */
-
-//!start if target == NodeJs
-console.log(inflate(deflate("Node")));
-...
-console.log(inflate(deflate("And only Node")));
-//!end
 ```
 
 
@@ -126,6 +125,6 @@ export const Buffer = MyWebBuffer;
 
 | Flag             | Description                                      | Default                                 |
 | ---------------- | ------------------------------------------------ | --------------------------------------- |
-| `--target` `-t`  | Set the compilation targets                      | `NodeJs NodeJs/src Browser Browser/src` |
-| `--rootDir` `-r` | Specify the root folder                          | current-directory                       |
-| `--clen` `-c`    | Delete the target directories before compilation | `true`                                  |  |
+| `-t`, `--target`  | Set the compilation targets                      | `NodeJs NodeJs/src Browser Browser/src` |
+| `-r`, `--rootDir` | Specify the root folder                          | current-directory                       |
+| `-c`, `--clean`    | Delete the target directories before compilation | `true`                                  |  |

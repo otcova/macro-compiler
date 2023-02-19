@@ -1,3 +1,4 @@
+
 //!file if target == Browser
 
 export function myFunction() {
