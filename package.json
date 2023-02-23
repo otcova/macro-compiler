@@ -1,6 +1,6 @@
 {
 	"name": "macro-compiler",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "Write efficient code for nodejs and browser without weird tricks",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",

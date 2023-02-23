@@ -57,8 +57,18 @@ export async function compileMacros(opts: Options) {
 		const srcPath = path.join(srcDir, relativeSrcPath);
 		const body = await readFile(srcPath);
 
+        const file = {
+            path: srcPath,
+            body,
+        };
+
+        const parsedFile = {
+            ...file,
+            macros: findMacros(file),
+        }
+
 		await Promise.all(targets.map(async target => {
-			const compiledSrc = compileFile({ path: srcPath, body }, target, macroHeaders);
+			const compiledSrc = compileFile(parsedFile, target, macroHeaders);
 			if (compiledSrc) {
 				let dstPath = path.join(target.dstDirectory, relativeSrcPath);
 				await writeFile(dstPath, compiledSrc);
@@ -67,7 +77,13 @@ export async function compileMacros(opts: Options) {
 	});
 }
 
-function compileFile(file: FileContent, target: Target, macrosHeader: string[]) {
+export interface ParsedFile {
+	path: string;
+	body: string;
+    macros: FoundMacro[];
+}
+
+function compileFile(file: ParsedFile, target: Target, macrosHeader: string[]) {
 	let cursor = 0;
 	let compiledSrc = "";
 	const copy = (until: number) => {
@@ -75,7 +91,7 @@ function compileFile(file: FileContent, target: Target, macrosHeader: string[]) 
 		cursor = until;
 	};
 
-	for (const macro of findMacros(file)) {
+	for (const macro of file.macros) {
 		const header = file.body.slice(...macro.header).trim().replace(/\s+/g, " ");
 
 		if (header == target.macroHeader) {
