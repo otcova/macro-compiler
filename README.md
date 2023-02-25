@@ -123,8 +123,8 @@ export const Buffer = MyWebBuffer;
 
 - Example:  `macro-compiler src-folder -t NodeJs dist/nodejs/src Browser dist/browser/src`
 
-| Flag             | Description                                      | Default                                 |
-| ---------------- | ------------------------------------------------ | --------------------------------------- |
-| `-t`, `--target`  | Set the compilation targets                      | `NodeJs NodeJs/src Browser Browser/src` |
-| `-r`, `--rootDir` | Specify the root folder                          | current-directory                       |
-| `-c`, `--clean`    | Delete the target directories before compilation | `true`                                  |  |
+| Flag                  | Description                                      | Default                                 |
+| --------------------- | ------------------------------------------------ | --------------------------------------- |
+| `-t`, <br>`--target`  | Set the compilation targets                      | `NodeJs NodeJs/src Browser Browser/src` |
+| `-r`, <br>`--rootDir` | Specify the root folder                          | current-directory                       |
+| `-c`, <br>`--clean`   | Delete the target directories before compilation | `true`                                  |
