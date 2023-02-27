@@ -66,7 +66,7 @@ They are simple comments that define what code will be deleted
 or conserved depending on the target.
 The macros can select lines, blocks or files.
 
-#### Select a line
+### Select a line
 Defined by `//!`, it will only select the next line.
 
 ```ts
